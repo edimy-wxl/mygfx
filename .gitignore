@@ -1,0 +1,9 @@
+cmake-build-debug
+Debug
+.settings
+
+Drivers/CMSIS
+Drivers/STM32G0xx_HAL_Driver
+
+Middlewares
+

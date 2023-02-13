@@ -1,0 +1,30 @@
+
+{
+  "Application": {
+    "Name": "mygfx",
+    "TouchGfxPath": "../Middlewares/ST/touchgfx",
+    "AvailableColorDepths": [ 16 ],
+    "AvailableLCDs":
+    {
+      "16": "LCD16bpp"
+    },
+    "AvailableResolutions": [
+      {
+        "Width": 32,
+        "Height": 32
+      }
+    ],
+    "PostGenerateTargetCommand": "touchgfx update_project",
+    "Family": "STM32G0",
+    "SubFamily": "STM32G0x1",
+    "Platform": "m0+",
+    "Toolchain": "STM32CubeIDE",
+    "ProjectFile": "../mygfx.ioc",
+    "OptionalComponentsRoot": "../Middlewares/ST/touchgfx_components",
+    "OptionalComponents": [
+    ],
+    "AdditionalFeatures": [
+    ],
+  },
+  "Version": "4.21.1"
+}
