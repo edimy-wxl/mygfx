@@ -1,7 +1,7 @@
 #THIS FILE IS AUTO GENERATED FROM THE TEMPLATE! DO NOT CHANGE!
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_VERSION 1)
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.19)
 
 # specify cross compilers and tools
 set(CMAKE_C_COMPILER arm-none-eabi-gcc)
@@ -12,67 +12,53 @@ set(CMAKE_OBJCOPY arm-none-eabi-objcopy)
 set(CMAKE_OBJDUMP arm-none-eabi-objdump)
 set(SIZE arm-none-eabi-size)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
-set(CMAKE_SYSTEM_PROCESSOR arm)
-set(CMAKE_EXE_LINKER_FLAGS "--specs=nosys.specs" CACHE INTERNAL "")
 
 # project settings
 project(mygfx C CXX ASM)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 11)
 
-add_compile_options(-mcpu=cortex-m0plus -g3)
-add_compile_options(-Os -ffunction-sections -fdata-sections -Wall -fstack-usage -mfloat-abi=soft -mthumb)
-if(CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions -fno-rtti -fno-use-cxa-atexit -femit-class-debug-always")
-endif(CMAKE_COMPILER_IS_GNUCXX)
+#Uncomment for hardware floating point
+#add_compile_definitions(ARM_MATH_CM4;ARM_MATH_MATRIX_CHECK;ARM_MATH_ROUNDING)
+#add_compile_options(-mfloat-abi=hard -mfpu=fpv4-sp-d16)
+#add_link_options(-mfloat-abi=hard -mfpu=fpv4-sp-d16)
 
+#Uncomment for software floating point
+#add_compile_options(-mfloat-abi=soft)
 
-include_directories(
-        Core/Inc
-        Drivers/STM32G0xx_HAL_Driver/Inc
-        Drivers/STM32G0xx_HAL_Driver/Inc/Legacy
-        Drivers/CMSIS/Device/ST/STM32G0xx/Include
-        Drivers/CMSIS/Include
-        Middlewares/ST/touchgfx/framework/include
-        TouchGFX/App
-        TouchGFX/target/generated
-        TouchGFX/target
-        TouchGFX/generated/fonts/include
-        TouchGFX/generated/gui_generated/include
-        TouchGFX/generated/images/include
-        TouchGFX/generated/texts/include
-        TouchGFX/generated/videos/include
-        TouchGFX/gui/include
-)
+add_compile_options(-mcpu=cortex-m0 -mthumb -mthumb-interwork)
+add_compile_options(-ffunction-sections -fdata-sections -fno-common -fmessage-length=0)
 
-add_definitions(-DDEBUG -DUSE_HAL_DRIVER -DSTM32G071xx)
+# uncomment to mitigate c++17 absolute addresses warnings
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-register")
 
-file(GLOB_RECURSE SOURCES
-        "Drivers/STM32G0xx_HAL_Driver/Src/*.*"
-        "Core/Src/*.*"
-        "Core/Startup/*.*"
-        "TouchGFX/gui/src/*.*"
-        "TouchGFX/generated/fonts/src/*.*"
-        "TouchGFX/generated/images/src/*.*"
-        "TouchGFX/generated/texts/src/*.*"
-        "TouchGFX/generated/gui_generated/src/*.*"
-        "TouchGFX/target/*.cpp"
-        "TouchGFX/target/generated/*.cpp"
-        "TouchGFX/App/*.*"
-        )
+if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+    message(STATUS "Maximum optimization for speed")
+    add_compile_options(-Ofast)
+elseif ("${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo")
+    message(STATUS "Maximum optimization for speed, debug info included")
+    add_compile_options(-Ofast -g)
+elseif ("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
+    message(STATUS "Maximum optimization for size")
+    add_compile_options(-Os)
+else ()
+    message(STATUS "Minimal optimization, debug info included")
+    add_compile_options(-Og -g)
+endif ()
 
+include_directories(Core/Inc Drivers/STM32G0xx_HAL_Driver/Inc Drivers/STM32G0xx_HAL_Driver/Inc/Legacy Drivers/CMSIS/Device/ST/STM32G0xx/Include Drivers/CMSIS/Include TouchGFX/App TouchGFX/target/generated TouchGFX/target Middlewares/ST/touchgfx/framework/include TouchGFX/generated/fonts/include TouchGFX/generated/gui_generated/include TouchGFX/generated/images/include TouchGFX/generated/texts/include TouchGFX/generated/videos/include TouchGFX/gui/include Core/Inc TouchGFX/App TouchGFX/target/generated TouchGFX/target Drivers/STM32G0xx_HAL_Driver/Inc Drivers/STM32G0xx_HAL_Driver/Inc/Legacy Drivers/CMSIS/Device/ST/STM32G0xx/Include Drivers/CMSIS/Include)
 
-set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/STM32G071RBTX_FLASH.ld)
-set(ST_TOUCHGFX ${CMAKE_SOURCE_DIR}/Middlewares/ST/touchgfx/lib/core/cortex_m0/gcc)
+add_definitions(-DDEBUG -DUSE_HAL_DRIVER -DSTM32G071xx -DDEBUG -DUSE_HAL_DRIVER -DSTM32G071xx)
 
-add_link_options(-Wl,-gc-sections,--print-memory-usage -Wl,-Map=${PROJECT_BINARY_DIR}/${PROJECT_NAME}.map)
-add_link_options(-mcpu=cortex-m0plus -mthumb -mthumb-interwork -mfloat-abi=soft )
+file(GLOB_RECURSE SOURCES "TouchGFX/*.*" "Core/*.*" "Drivers/*.*" "Middlewares/*.*" "TouchGFX/*.*" "Core/*.*" "Drivers/*.*")
+
+set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/)
+
+add_link_options(-Wl,-gc-sections,--print-memory-usage,-Map=${PROJECT_BINARY_DIR}/${PROJECT_NAME}.map)
+add_link_options(-mcpu=cortex-m0 -mthumb -mthumb-interwork)
 add_link_options(-T ${LINKER_SCRIPT})
 
-
 add_executable(${PROJECT_NAME}.elf ${SOURCES} ${LINKER_SCRIPT})
-target_link_libraries(${PROJECT_NAME}.elf ${CMAKE_SOURCE_DIR}/Middlewares/ST/touchgfx/lib/core/cortex_m0/gcc/libtouchgfx.a)
-
 
 set(HEX_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.hex)
 set(BIN_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.bin)
